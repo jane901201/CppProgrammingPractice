@@ -10,6 +10,9 @@ Game::Game()
     mPlayer(nullptr), mDog(nullptr), mUI(nullptr),
     mIsRunning(true)
 {
+    mPhase = Phase::Select;
+    mPlayerAction = Action::None;
+    mDogAction = Action::None;
 }
 
 Game::~Game()
@@ -62,16 +65,30 @@ void Game::RunLoop()
             {
                 mIsRunning = false;
             }
-            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            else if (event.type == SDL_MOUSEBUTTONDOWN && mPhase == Phase::Select)
             {
                 int mx = event.button.x;
                 int my = event.button.y;
-                SDL_Rect rect = mUI->GetAttackButtonRect();
-                if (mx >= rect.x && mx <= rect.x + rect.w &&
-                    my >= rect.y && my <= rect.y + rect.h)
+
+                if (IsInRect(mx, my, mUI->GetAttackButtonRect()))
+                    mPlayerAction = Action::Attack;
+                else if (IsInRect(mx, my, mUI->GetDefendButtonRect()))
+                    mPlayerAction = Action::Defend;
+
+                if (mPlayerAction != Action::None)
                 {
-                    if (mDog->GetHP() > 0)
+                    mDogAction = (rand() % 2 == 0) ? Action::Attack : Action::Defend;
+
+                    // ダメージ計算
+                    if (mPlayerAction == Action::Attack && mDogAction != Action::Defend)
                         mDog->SetHP(mDog->GetHP() - 10);
+
+                    if (mDogAction == Action::Attack && mPlayerAction != Action::Defend)
+                        mPlayer->SetHP(mPlayer->GetHP() - 10);
+
+                    // 行動開始時間記録
+                    mActionStartTime = SDL_GetTicks();
+                    mPhase = Phase::Action;
                 }
             }
         }
@@ -83,12 +100,54 @@ void Game::RunLoop()
 
 void Game::UpdateGame()
 {
-    // 今後行動フェーズや遅延演出などが必要になったときに拡張
+    if (mPhase == Phase::Action)
+    {
+        Uint32 now = SDL_GetTicks();
+        
+        if (!mActionProcessed)
+        {
+            if (mPlayerAction == Action::Attack && mDogAction != Action::Defend)
+                mDog->SetHP(mDog->GetHP() - 10);
+
+            if (mDogAction == Action::Attack && mPlayerAction != Action::Defend)
+                mPlayer->SetHP(mPlayer->GetHP() - 10);
+
+            mActionProcessed = true;
+        }
+
+        if (now - mActionStartTime >= 3000) // 3秒経過したら
+        {
+            mPhase = Phase::Select;
+            mPlayerAction = Action::None;
+            mDogAction = Action::None;
+            mActionProcessed = false; // 次の行動フェーズに備えてリセット
+        }
+        return;
+    }
 }
 
 void Game::GenerateOutput()
 {
-    mUI->Render(mPlayer, mDog);
+    const char* phaseStr = (mPhase == Phase::Select) ? "Select Phase" : "Action Phase";
+    const char* playerActStr = "";
+    const char* dogActStr = "";
+
+    if (mPhase == Phase::Action)
+    {
+        if (mPlayerAction == Action::Attack) playerActStr = "Player Action:Attack";
+        else if (mPlayerAction == Action::Defend) playerActStr = "Player Action:Defend";
+
+        if (mDogAction == Action::Attack) dogActStr = "Enemy Action:Attack";
+        else if (mDogAction == Action::Defend) dogActStr = "Enemy Action:Defend";
+    }
+
+    mUI->Render(mPlayer, mDog, phaseStr, playerActStr, dogActStr);
+}
+
+bool Game::IsInRect(int x, int y, const SDL_Rect& rect)
+{
+    return (x >= rect.x && x <= rect.x + rect.w &&
+        y >= rect.y && y <= rect.y + rect.h);
 }
 
 void Game::Shutdown()

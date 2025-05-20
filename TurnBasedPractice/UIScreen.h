@@ -9,8 +9,14 @@ public:
     ~UIScreen();
 
     void LoadAssets();
-    void Render(Unit* player, Unit* dog);
+    void Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText);
+
+
     SDL_Rect GetAttackButtonRect() const;
+
+    SDL_Rect GetDefendButtonRect() const;
+
+    SDL_Rect GetSpecialButtonRect() const;
 
 private:
     SDL_Renderer* mRenderer;
@@ -26,7 +32,7 @@ private:
     SDL_Texture* mSpecialButtonTexture;
 
     SDL_Rect mDogRect;
-    SDL_Rect mFarmerRect;
+    SDL_Rect mPlayerRect;
     SDL_Rect mButtonRect;
 
     SDL_Rect mAttackRect;

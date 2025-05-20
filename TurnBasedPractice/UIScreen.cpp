@@ -44,7 +44,7 @@ void UIScreen::LoadAssets()
     SDL_FreeSurface(farmerSurf);
 
     mDogRect = { 1024 - 200 - 50, 200, 200, 200 };
-    mFarmerRect = { 50, 768 - 200 - 200, 200, 200 };
+    mPlayerRect = { 50, 768 - 200 - 200, 200, 200 };
 
     mAttackRect = { 200, 680, 190, 49 };
     mDefendRect = { 400, 680, 190, 49 };
@@ -71,11 +71,18 @@ void UIScreen::LoadAssets()
 
 void UIScreen::DrawHPBar(int x, int y, int hp)
 {
-    SDL_Rect bg = { x, y, 104, 14 };
-    SDL_Rect bar = { x + 2, y + 2, hp, 10 };
+    const int maxHP = 100;     // HPの最大値（固定）
+    const int barWidth = 100;  // HPバーの表示幅
 
+    SDL_Rect bg = { x, y, barWidth + 4, 14 }; // +4 は枠分（左右2pxずつ）
+    int hpWidth = (hp * barWidth) / maxHP;    // 現在HPの割合で横幅を決定
+    SDL_Rect bar = { x + 2, y + 2, hpWidth, 10 };
+
+    // 背景（黒い枠）
     SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
     SDL_RenderFillRect(mRenderer, &bg);
+
+    // HPバー（赤）
     SDL_SetRenderDrawColor(mRenderer, 255, 0, 0, 255);
     SDL_RenderFillRect(mRenderer, &bar);
 }
@@ -108,16 +115,16 @@ void UIScreen::DrawTextCentered(const char* text, const SDL_Rect& targetRect)
     SDL_DestroyTexture(texture);
 }
 
-void UIScreen::Render(Unit* player, Unit* dog)
+void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText)
 {
     SDL_RenderClear(mRenderer);
 
     SDL_RenderCopy(mRenderer, mBackground, nullptr, nullptr);
     SDL_RenderCopy(mRenderer, mDogTexture, nullptr, &mDogRect);
-    SDL_RenderCopy(mRenderer, mFarmerTexture, nullptr, &mFarmerRect);
+    SDL_RenderCopy(mRenderer, mFarmerTexture, nullptr, &mPlayerRect);
 
     DrawHPBar(mDogRect.x, mDogRect.y - 20, dog->GetHP());
-    DrawHPBar(mFarmerRect.x, mFarmerRect.y - 20, player->GetHP());
+    DrawHPBar(mPlayerRect.x, mPlayerRect.y - 20, player->GetHP());
 
     SDL_RenderCopy(mRenderer, mButtonTexture, nullptr, &mAttackRect);
     SDL_RenderCopy(mRenderer, mButtonTexture, nullptr, &mDefendRect);
@@ -128,6 +135,11 @@ void UIScreen::Render(Unit* player, Unit* dog)
     DrawTextCentered("Defend", mDefendRect);
     DrawTextCentered("Special Attack", mSpecialRect);
 
+    // 上部中央にフェーズ名を表示
+    DrawTextCentered(phaseText, { 0, 20, 1024, 40 }); // 画面上部中央
+
+    DrawTextCentered(playerActionText, { 100, 50, 300, 30 });
+    DrawTextCentered(dogActionText, { 600, 50, 300, 30 });
 
     SDL_RenderPresent(mRenderer);
 }
@@ -135,4 +147,14 @@ void UIScreen::Render(Unit* player, Unit* dog)
 SDL_Rect UIScreen::GetAttackButtonRect() const
 {
     return mAttackRect;
+}
+
+SDL_Rect UIScreen::GetDefendButtonRect() const
+{
+    return mDefendRect;
+}
+
+SDL_Rect UIScreen::GetSpecialButtonRect() const
+{
+    return mSpecialRect;
 }

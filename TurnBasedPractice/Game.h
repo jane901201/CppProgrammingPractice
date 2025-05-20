@@ -5,6 +5,19 @@
 class Unit;
 class UIScreen;
 
+enum class Phase
+{
+    Select,
+    Action
+};
+
+enum class Action
+{
+    None,
+    Attack,
+    Defend
+};
+
 class Game {
 public:
     Game();
@@ -19,6 +32,9 @@ private:
     void UpdateGame(); 
     void GenerateOutput();
 
+    bool IsInRect(int x, int y, const SDL_Rect& rect);
+    bool mActionProcessed = false;
+
     SDL_Window* mWindow;
     SDL_Renderer* mRenderer;
 
@@ -27,4 +43,10 @@ private:
     UIScreen* mUI;
 
     bool mIsRunning;
+
+    Uint32 mActionStartTime;
+
+    Phase mPhase;
+    Action mPlayerAction;
+    Action mDogAction;
 };
