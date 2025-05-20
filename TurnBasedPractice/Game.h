@@ -1,21 +1,8 @@
-// ----------------------------------------------------------------
-// From Game Programming in C++ by Sanjay Madhav
-// Copyright (C) 2017 Sanjay Madhav. All rights reserved.
-// 
-// Released under the BSD License
-// See LICENSE in root directory for full details.
-// ----------------------------------------------------------------
-
 #pragma once
 #include "SDL/SDL.h"
-
-// Vector2 struct just stores x/y coordinates
-// (for now)
-struct Vector2
-{
-	float x;
-	float y;
-};
+#include <unordered_map>
+#include <string>
+#include <vector>
 
 // Game class
 class Game
@@ -28,11 +15,26 @@ public:
 	void RunLoop();
 	// Shutdown the game
 	void Shutdown();
+
+	void AddPlayer(class Player* player);
+	void RemovePlayer(class Player* player);
+
+	void AddSprite(class SpriteComponent* sprite);
+	void RemoveSprite(class SpriteComponent* sprite);
+
+	SDL_Texture* GetTexture(const std::string& fileName);
 private:
 	// Helper functions for the game loop
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
+	void LoadData();
+	void UnloadData();
+
+	// Map of textures loaded
+	std::unordered_map<std::string, SDL_Texture*> mTextures;
+	// All the sprite components drawn
+	std::vector<class SpriteComponent*> mSprites;
 
 	// Window created by SDL
 	SDL_Window* mWindow;
@@ -46,10 +48,4 @@ private:
 	// Pong specific
 	// Direction of paddle
 	int mPaddleDir;
-	// Position of paddle
-	Vector2 mPaddlePos;
-	// Position of ball
-	Vector2 mBallPos;
-	// Velocity of ball
-	Vector2 mBallVel;
 };

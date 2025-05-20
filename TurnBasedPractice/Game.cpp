@@ -1,4 +1,6 @@
 #include "Game.h"
+#include "SDL/SDL_image.h"
+#include "UIScreen.h"
 
 const int thickness = 15;
 const float paddleH = 100.0f;
@@ -25,7 +27,7 @@ bool Game::Initialize()
 	
 	// Create an SDL Window
 	mWindow = SDL_CreateWindow(
-		"Game Programming in C++ (Chapter 1)", // Window title
+		"Turn Based Practice", // Window title
 		100,	// Top left x-coordinate of window
 		100,	// Top left y-coordinate of window
 		1024,	// Width of window
@@ -51,13 +53,16 @@ bool Game::Initialize()
 		SDL_Log("Failed to create renderer: %s", SDL_GetError());
 		return false;
 	}
-	//
-	mPaddlePos.x = 10.0f;
-	mPaddlePos.y = 768.0f/2.0f;
-	mBallPos.x = 1024.0f/2.0f;
-	mBallPos.y = 768.0f/2.0f;
-	mBallVel.x = -200.0f;
-	mBallVel.y = 235.0f;
+
+	if (IMG_Init(IMG_INIT_PNG) == 0)
+	{
+		SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
+		return false;
+	}
+
+
+	LoadData();
+
 	return true;
 }
 
@@ -124,126 +129,85 @@ void Game::UpdateGame()
 	// Update tick counts (for next frame)
 	mTicksCount = SDL_GetTicks();
 	
-	// Update paddle position based on direction
-	if (mPaddleDir != 0)
-	{
-		mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
-		// Make sure paddle doesn't move off screen!
-		if (mPaddlePos.y < (paddleH/2.0f + thickness))
-		{
-			mPaddlePos.y = paddleH/2.0f + thickness;
-		}
-		else if (mPaddlePos.y > (768.0f - paddleH/2.0f - thickness))
-		{
-			mPaddlePos.y = 768.0f - paddleH/2.0f - thickness;
-		}
-	}
-	
-	// Update ball position based on ball velocity
-	mBallPos.x += mBallVel.x * deltaTime;
-	mBallPos.y += mBallVel.y * deltaTime;
-	
-	// Bounce if needed
-	// Did we intersect with the paddle?
-	float diff = mPaddlePos.y - mBallPos.y;
-	// Take absolute value of difference
-	diff = (diff > 0.0f) ? diff : -diff;
-	if (
-		// Our y-difference is small enough
-		diff <= paddleH / 2.0f &&
-		// We are in the correct x-position
-		mBallPos.x <= 25.0f && mBallPos.x >= 20.0f &&
-		// The ball is moving to the left
-		mBallVel.x < 0.0f)
-	{
-		mBallVel.x *= -1.0f;
-	}
-	// Did the ball go off the screen? (if so, end game)
-	else if (mBallPos.x <= 0.0f)
-	{
-		mIsRunning = false;
-	}
-	// Did the ball collide with the right wall?
-	else if (mBallPos.x >= (1024.0f - thickness) && mBallVel.x > 0.0f)
-	{
-		mBallVel.x *= -1.0f;
-	}
-	
-	// Did the ball collide with the top wall?
-	if (mBallPos.y <= thickness && mBallVel.y < 0.0f)
-	{
-		mBallVel.y *= -1;
-	}
-	// Did the ball collide with the bottom wall?
-	else if (mBallPos.y >= (768 - thickness) &&
-		mBallVel.y > 0.0f)
-	{
-		mBallVel.y *= -1;
-	}
 }
 
 void Game::GenerateOutput()
 {
-	// Set draw color to blue
-	SDL_SetRenderDrawColor(
-		mRenderer,
-		0,		// R
-		0,		// G 
-		255,	// B
-		255		// A
-	);
-	
-	// Clear back buffer
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(mRenderer);
-
-	// Draw walls
-	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 255);
-	
-	// Draw top wall
-	SDL_Rect wall{
-		0,			// Top left x
-		0,			// Top left y
-		1024,		// Width
-		thickness	// Height
-	};
-	SDL_RenderFillRect(mRenderer, &wall);
-	
-	// Draw bottom wall
-	wall.y = 768 - thickness;
-	SDL_RenderFillRect(mRenderer, &wall);
-	
-	// Draw right wall
-	wall.x = 1024 - thickness;
-	wall.y = 0;
-	wall.w = thickness;
-	wall.h = 1024;
-	SDL_RenderFillRect(mRenderer, &wall);
-	
-	// Draw paddle
-	SDL_Rect paddle{
-		static_cast<int>(mPaddlePos.x),
-		static_cast<int>(mPaddlePos.y - paddleH/2),
-		thickness,
-		static_cast<int>(paddleH)
-	};
-	SDL_RenderFillRect(mRenderer, &paddle);
-	
-	// Draw ball
-	SDL_Rect ball{	
-		static_cast<int>(mBallPos.x - thickness/2),
-		static_cast<int>(mBallPos.y - thickness/2),
-		thickness,
-		thickness
-	};
-	SDL_RenderFillRect(mRenderer, &ball);
-	
-	// Swap front buffer and back buffer
-	SDL_RenderPresent(mRenderer);
 }
+
+void Game::LoadData()
+{
+}
+
+void Game::UnloadData()
+{
+	// Delete Players
+	// Because ~Player calls RemovePlayer, have to use a different style loop
+	//while (!mPlayers.empty())
+	//{
+	//	delete mPlayers.back();
+	//}
+
+	// Destroy textures
+	for (auto i : mTextures)
+	{
+		SDL_DestroyTexture(i.second);
+	}
+	mTextures.clear();
+}
+
+
 
 void Game::Shutdown()
 {
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
+}
+
+void Game::AddPlayer(Player* player)
+{
+	//// If we're updating Players, need to add to pending
+	//if (mUpdatingPlayers)
+	//{
+	//	mPendingPlayers.emplace_back(player);
+	//}
+	//else
+	//{
+	//	mPlayers.emplace_back(player);
+	//}
+}
+
+void Game::RemovePlayer(Player* player)
+{
+	//// Is it in pending Players?
+	//auto iter = std::find(mPendingPlayers.begin(), mPendingPlayers.end(), player);
+	//if (iter != mPendingPlayers.end())
+	//{
+	//	// Swap to end of vector and pop off (avoid erase copies)
+	//	std::iter_swap(iter, mPendingPlayers.end() - 1);
+	//	mPendingPlayers.pop_back();
+	//}
+
+	//// Is it in Players?
+	//iter = std::find(mPlayers.begin(), mPlayers.end(), player);
+	//if (iter != mPlayers.end())
+	//{
+	//	// Swap to end of vector and pop off (avoid erase copies)
+	//	std::iter_swap(iter, mPlayers.end() - 1);
+	//	mPlayers.pop_back();
+	//}
+}
+
+void Game::AddSprite(SpriteComponent* sprite)
+{
+}
+
+void Game::RemoveSprite(SpriteComponent* sprite)
+{
+	// (We can't swap because it ruins ordering)
+	auto iter = std::find(mSprites.begin(), mSprites.end(), sprite);
+	mSprites.erase(iter);
 }
