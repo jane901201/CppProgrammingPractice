@@ -1,45 +1,35 @@
 #pragma once
-#include <SDL/SDL.h>
+#include <GL/glew.h>
+#include <string>
 #include "Unit.h"
-#include <SDL/SDL_ttf.h>
+#include <SDL/SDL.h>
 
 class UIScreen {
 public:
-    UIScreen(SDL_Renderer* renderer);
+    UIScreen();
     ~UIScreen();
 
-    void LoadAssets();
+    bool LoadAssets();
     void Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText);
 
-
     SDL_Rect GetAttackButtonRect() const;
-
     SDL_Rect GetDefendButtonRect() const;
-
     SDL_Rect GetSpecialButtonRect() const;
 
 private:
-    SDL_Renderer* mRenderer;
-    TTF_Font* mFont;
-
-    SDL_Texture* mBackground;
-    SDL_Texture* mDogTexture;
-    SDL_Texture* mFarmerTexture;
-    SDL_Texture* mButtonTexture;
-
-    SDL_Texture* mAttackButtonTexture;
-    SDL_Texture* mDefendButtonTexture;
-    SDL_Texture* mSpecialButtonTexture;
+    GLuint mBackgroundTex;
+    GLuint mDogTex;
+    GLuint mFarmerTex;
+    GLuint mButtonTex;
 
     SDL_Rect mDogRect;
     SDL_Rect mPlayerRect;
-    SDL_Rect mButtonRect;
 
     SDL_Rect mAttackRect;
     SDL_Rect mDefendRect;
     SDL_Rect mSpecialRect;
 
-
+    GLuint LoadGLTextureFromFile(const char* path);
+    void DrawQuad(GLuint texture, int x, int y, int w, int h);
     void DrawHPBar(int x, int y, int hp);
-    void DrawTextCentered(const char* text, const SDL_Rect& targetRect);
 };

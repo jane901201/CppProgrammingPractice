@@ -1,6 +1,9 @@
 #pragma once
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
+
 
 class Unit;
 class UIScreen;
@@ -36,6 +39,7 @@ private:
     bool mActionProcessed = false;
 
     SDL_Window* mWindow;
+    SDL_GLContext mGLContext;
     SDL_Renderer* mRenderer;
 
     Unit* mPlayer;

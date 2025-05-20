@@ -4,6 +4,10 @@
 #include "UIScreen.h"
 #include <iostream>
 #include <SDL/SDL_image.h>
+#include <GL/glew.h>  
+#include <GL/gl.h>
+#include <SDL/SDL.h>
+#include <iostream>
 
 Game::Game()
     : mWindow(nullptr), mRenderer(nullptr),
@@ -21,11 +25,15 @@ Game::~Game()
 
 bool Game::Initialize()
 {
+    SDL_Init(SDL_INIT_VIDEO);
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    IMG_Init(IMG_INIT_PNG);
 
     if (TTF_Init() == -1)
     {
@@ -33,23 +41,66 @@ bool Game::Initialize()
         return false;
     }
 
-    mWindow = SDL_CreateWindow("Battle Game", 100, 100, 1024, 768, 0);
+    // Set OpenGL attributes
+    // Use the core OpenGL profile
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    // Specify version 3.3
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    // Request a color buffer with 8-bits per RGBA channel
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    // Enable double buffering
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    // Force OpenGL to use hardware acceleration
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+
+    mWindow = SDL_CreateWindow("Battle Game", 100, 100, 1024, 768, SDL_WINDOW_OPENGL);
     if (!mWindow)
     {
         std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (!mRenderer)
+    // OpenGLコンテキスト作成
+    mGLContext = SDL_GL_CreateContext(mWindow);
+    if (!mGLContext)
     {
-        std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        std::cout << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
+    glewExperimental = GL_TRUE;
+    glewInit();
+
+    if (glewInit() != GLEW_OK)
+    {
+        std::cout << "GLEW Init Failed" << std::endl;
+        return false;
+    }
+
+    glGetError();
+
+    // GLEWのようなライブラリが必要（ここでは省略可能）
+
+    glViewport(0, 0, 1024, 768);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 1024, 768, 0, -1, 1); // SDL座標と同じにする
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+
     mPlayer = new PlayerUnit();
     mDog = new DogUnit();
-    mUI = new UIScreen(mRenderer);
+    mUI = new UIScreen();
+
+    mUI->LoadAssets();
 
     return true;
 }
@@ -128,6 +179,8 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
+
     const char* phaseStr = (mPhase == Phase::Select) ? "Select Phase" : "Action Phase";
     const char* playerActStr = "";
     const char* dogActStr = "";
@@ -141,7 +194,11 @@ void Game::GenerateOutput()
         else if (mDogAction == Action::Defend) dogActStr = "Enemy Action:Defend";
     }
 
+    // テキストやUIのOpenGL描画へ（仮対応）
+
     mUI->Render(mPlayer, mDog, phaseStr, playerActStr, dogActStr);
+
+    SDL_GL_SwapWindow(mWindow); // 描画の反映
 }
 
 bool Game::IsInRect(int x, int y, const SDL_Rect& rect)
@@ -156,8 +213,9 @@ void Game::Shutdown()
     delete mDog;
     delete mUI;
 
-    SDL_DestroyRenderer(mRenderer);
+    SDL_GL_DeleteContext(mGLContext);
     SDL_DestroyWindow(mWindow);
+
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
