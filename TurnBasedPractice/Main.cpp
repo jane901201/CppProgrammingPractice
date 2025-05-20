@@ -4,6 +4,7 @@
 #include "PlayerUnit.h"
 #include "DogUnit.h"
 #include "UIScreen.h"
+#include <SDL/SDL_ttf.h>
 
 int main(int argc, char* argv[])
 {
@@ -13,6 +14,11 @@ int main(int argc, char* argv[])
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    if (TTF_Init() == -1) {
+        std::cout << "TTF_Init Error: " << TTF_GetError() << std::endl;
         return 1;
     }
 
@@ -50,7 +56,7 @@ int main(int argc, char* argv[])
             {
                 int mx = event.button.x;
                 int my = event.button.y;
-                SDL_Rect buttonRect = ui->GetButtonRect();
+                SDL_Rect buttonRect = ui->GetAttackButtonRect();
                 if (mx >= buttonRect.x && mx <= buttonRect.x + buttonRect.w &&
                     my >= buttonRect.y && my <= buttonRect.y + buttonRect.h)
                 {

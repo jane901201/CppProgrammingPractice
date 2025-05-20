@@ -11,11 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DogUnit.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="UIScreen.cpp" />
+    <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DogUnit.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="PlayerUnit.h" />
+    <ClInclude Include="UIScreen.h" />
+    <ClInclude Include="Unit.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC508D87-495F-4554-932D-DD68388B63CC}</ProjectGuid>
