@@ -12,19 +12,23 @@ public:
     ~UIScreen();
 
     bool LoadAssets();
-    void Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText);
+    void Render(Unit* player, Unit* enemy, const char* phaseText, const char* playerActionText, const char* enemyActionText);
 
     SDL_Rect GetAttackButtonRect() const;
     SDL_Rect GetDefendButtonRect() const;
     SDL_Rect GetSpecialButtonRect() const;
 
+    
+    SDL_Rect GetEnemyRect() const;
+    SDL_Rect GetPlayerRect() const;
+
 private:
     GLuint mBackgroundTex;
-    GLuint mDogTex;
-    GLuint mFarmerTex;
+    GLuint mEnemyTex;
+    GLuint mPlayerTex;
     GLuint mButtonTex;
 
-    SDL_Rect mDogRect;
+    SDL_Rect mEnemyRect;
     SDL_Rect mPlayerRect;
 
     SDL_Rect mAttackRect;

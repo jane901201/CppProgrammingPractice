@@ -3,7 +3,8 @@
 #include <SDL/SDL_ttf.h>
 #include <GL/glew.h>
 #include <GL/gl.h>
-
+#include "Shader.h"
+#include "SlashAttack.h"
 
 class Unit;
 class UIScreen;

@@ -15,6 +15,9 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SlashAttack.cpp" />
+    <ClCompile Include="Test.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="UIScreen.cpp" />
     <ClCompile Include="Unit.cpp" />
@@ -23,9 +26,20 @@
     <ClInclude Include="DogUnit.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PlayerUnit.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="SlashAttack.h" />
+    <ClInclude Include="Test.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="UIScreen.h" />
     <ClInclude Include="Unit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Game.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="attack.vert" />
+    <Text Include="attack.frag" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC508D87-495F-4554-932D-DD68388B63CC}</ProjectGuid>

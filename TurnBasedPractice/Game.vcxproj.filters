@@ -11,6 +11,15 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{143999bc-fbcb-49e5-94ff-af5a8cd8f3db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{cb1798b8-810c-4dcd-965d-2760903e9b0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{90a4d059-8463-4abc-a923-8f7e46eb2037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Action">
+      <UniqueIdentifier>{094d96f1-cc7d-4832-b628-0dc3da25f3fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -34,6 +43,15 @@
     <ClCompile Include="TextRenderer.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="SlashAttack.cpp">
+      <Filter>Source Files\Action</Filter>
+    </ClCompile>
+    <ClCompile Include="Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -54,5 +72,26 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SlashAttack.h">
+      <Filter>Source Files\Action</Filter>
+    </ClInclude>
+    <ClInclude Include="Test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Game.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="attack.vert">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="attack.frag">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -4,29 +4,29 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-UIScreen::UIScreen() : mBackgroundTex(0), mDogTex(0), mFarmerTex(0), mButtonTex(0) {}
+UIScreen::UIScreen() : mBackgroundTex(0), mEnemyTex(0), mPlayerTex(0), mButtonTex(0) {}
 
 UIScreen::~UIScreen() {
     glDeleteTextures(1, &mBackgroundTex);
-    glDeleteTextures(1, &mDogTex);
-    glDeleteTextures(1, &mFarmerTex);
+    glDeleteTextures(1, &mEnemyTex);
+    glDeleteTextures(1, &mPlayerTex);
     glDeleteTextures(1, &mButtonTex);
 }
 
 bool UIScreen::LoadAssets() {
     mBackgroundTex = LoadGLTextureFromFile("Assets/Background.png");
-    mDogTex = LoadGLTextureFromFile("Assets/Dog.png");
-    mFarmerTex = LoadGLTextureFromFile("Assets/Farmer.png");
+    mEnemyTex = LoadGLTextureFromFile("Assets/Dog.png");
+    mPlayerTex = LoadGLTextureFromFile("Assets/Farmer.png");
     mButtonTex = LoadGLTextureFromFile("Assets/Button.png");
 
-    if (!mBackgroundTex || !mDogTex || !mFarmerTex || !mButtonTex)
+    if (!mBackgroundTex || !mEnemyTex || !mPlayerTex || !mButtonTex)
         return false;
 
     if (!mTextRenderer.Initialize("Assets/NotoSans-Regular.ttf", 32)) {
         return false;
     }
 
-    mDogRect = { 774, 200, 200, 200 };
+    mEnemyRect = { 774, 200, 200, 200 };
     mPlayerRect = { 50, 368, 200, 200 };
     mAttackRect = { 200, 600, 190, 120 };
     mDefendRect = { 400, 600, 190, 120 };
@@ -104,10 +104,10 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
     glClear(GL_COLOR_BUFFER_BIT);
 
     DrawQuad(mBackgroundTex, 0, 0, 1024, 768);
-    DrawQuad(mDogTex, mDogRect.x, mDogRect.y, mDogRect.w, mDogRect.h);
-    DrawQuad(mFarmerTex, mPlayerRect.x, mPlayerRect.y, mPlayerRect.w, mPlayerRect.h);
+    DrawQuad(mEnemyTex, mEnemyRect.x, mEnemyRect.y, mEnemyRect.w, mEnemyRect.h);
+    DrawQuad(mPlayerTex, mPlayerRect.x, mPlayerRect.y, mPlayerRect.w, mPlayerRect.h);
 
-    DrawHPBar(mDogRect.x, mDogRect.y - 20, dog->GetHP());
+    DrawHPBar(mEnemyRect.x, mEnemyRect.y - 20, dog->GetHP());
     DrawHPBar(mPlayerRect.x, mPlayerRect.y - 20, player->GetHP());
 
     DrawQuad(mButtonTex, mAttackRect.x, mAttackRect.y, mAttackRect.w, mAttackRect.h);
@@ -136,6 +136,32 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
         mSpecialRect.y + (mSpecialRect.h - h) / 2,
         w, h);
 
+    int phaseW, phaseH;
+    GLuint phaseTex = mTextRenderer.RenderText(phaseText, white, phaseW, phaseH);
+    mTextRenderer.DrawTextTexture(
+        phaseTex,
+        (1024 - phaseW) / 2, 
+        30,                   
+        phaseW, phaseH);
+    glDeleteTextures(1, &phaseTex);
+
+    // プレイヤー行動内容
+    if (playerActionText && playerActionText[0] != '\0') {
+        int w, h;
+        GLuint tex = mTextRenderer.RenderText(playerActionText, white, w, h);
+        mTextRenderer.DrawTextTexture(tex, 100, 80, w, h);
+        glDeleteTextures(1, &tex);
+    }
+
+    // 敵の行動内容
+    if (dogActionText && dogActionText[0] != '\0') {
+        int w, h;
+        GLuint tex = mTextRenderer.RenderText(dogActionText, white, w, h);
+        mTextRenderer.DrawTextTexture(tex, 600, 80, w, h);
+        glDeleteTextures(1, &tex);
+    }
+
+
     glDeleteTextures(1, &attackTex);
     glDeleteTextures(1, &defendTex);
     glDeleteTextures(1, &specialTex);
@@ -146,3 +172,5 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
 SDL_Rect UIScreen::GetAttackButtonRect() const { return mAttackRect; }
 SDL_Rect UIScreen::GetDefendButtonRect() const { return mDefendRect; }
 SDL_Rect UIScreen::GetSpecialButtonRect() const { return mSpecialRect; }
+SDL_Rect UIScreen::GetEnemyRect() const { return mEnemyRect; }
+SDL_Rect UIScreen::GetPlayerRect() const { return mPlayerRect; }

@@ -155,11 +155,15 @@ void Game::UpdateGame()
         
         if (!mActionProcessed)
         {
-            if (mPlayerAction == Action::Attack && mDogAction != Action::Defend)
-                mDog->SetHP(mDog->GetHP() - 10);
+            float timeSec = SDL_GetTicks() / 1000.0f;
 
-            if (mDogAction == Action::Attack && mPlayerAction != Action::Defend)
+            if (mPlayerAction == Action::Attack && mDogAction != Action::Defend) {
+                mDog->SetHP(mDog->GetHP() - 10);
+            }
+
+            if (mDogAction == Action::Attack && mPlayerAction != Action::Defend) {
                 mPlayer->SetHP(mPlayer->GetHP() - 10);
+            }
 
             mActionProcessed = true;
         }
@@ -191,8 +195,6 @@ void Game::GenerateOutput()
         if (mDogAction == Action::Attack) dogActStr = "Enemy Action:Attack";
         else if (mDogAction == Action::Defend) dogActStr = "Enemy Action:Defend";
     }
-
-    // テキストやUIのOpenGL描画へ（仮対応）
 
     mUI->Render(mPlayer, mDog, phaseStr, playerActStr, dogActStr);
 
