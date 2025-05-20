@@ -3,6 +3,8 @@
 #include <string>
 #include "Unit.h"
 #include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
+#include "TextRenderer.h"
 
 class UIScreen {
 public:
@@ -28,6 +30,8 @@ private:
     SDL_Rect mAttackRect;
     SDL_Rect mDefendRect;
     SDL_Rect mSpecialRect;
+
+    TextRenderer mTextRenderer;
 
     GLuint LoadGLTextureFromFile(const char* path);
     void DrawQuad(GLuint texture, int x, int y, int w, int h);

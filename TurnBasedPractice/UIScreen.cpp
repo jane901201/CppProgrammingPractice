@@ -22,11 +22,15 @@ bool UIScreen::LoadAssets() {
     if (!mBackgroundTex || !mDogTex || !mFarmerTex || !mButtonTex)
         return false;
 
+    if (!mTextRenderer.Initialize("Assets/NotoSans-Regular.ttf", 32)) {
+        return false;
+    }
+
     mDogRect = { 774, 200, 200, 200 };
     mPlayerRect = { 50, 368, 200, 200 };
-    mAttackRect = { 200, 680, 190, 80 };
-    mDefendRect = { 400, 680, 190, 80 };
-    mSpecialRect = { 600, 680, 190, 80 };
+    mAttackRect = { 200, 600, 190, 120 };
+    mDefendRect = { 400, 600, 190, 120 };
+    mSpecialRect = { 600, 600, 190, 120 };
 
     return true;
 }
@@ -69,24 +73,34 @@ void UIScreen::DrawQuad(GLuint texture, int x, int y, int w, int h) {
 
 void UIScreen::DrawHPBar(int x, int y, int hp) {
     const int maxHP = 100;
-    int hpWidth = (hp * 100) / maxHP;
+    int barWidth = 100;
+    int barHeight = 10;
 
-    float fx = x / 512.0f - 1.0f;
-    float fy = 1.0f - y / 384.0f;
-    float fw = hpWidth / 512.0f;
-    float fh = 10 / 384.0f;
+    int hpWidth = (hp * barWidth) / maxHP;
 
-    glColor3f(1.0f, 0.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 0.0f); // 枠（背景）
     glBegin(GL_QUADS);
-    glVertex2f(fx, fy);
-    glVertex2f(fx + fw, fy);
-    glVertex2f(fx + fw, fy - fh);
-    glVertex2f(fx, fy - fh);
+    glVertex2f(x - 2, y - 2);
+    glVertex2f(x + barWidth + 2, y - 2);
+    glVertex2f(x + barWidth + 2, y + barHeight + 2);
+    glVertex2f(x - 2, y + barHeight + 2);
     glEnd();
-    glColor3f(1.0f, 1.0f, 1.0f);
+
+    glColor3f(1.0f, 0.0f, 0.0f); // HPバー本体
+    glBegin(GL_QUADS);
+    glVertex2f(x, y);
+    glVertex2f(x + hpWidth, y);
+    glVertex2f(x + hpWidth, y + barHeight);
+    glVertex2f(x, y + barHeight);
+    glEnd();
+
+    glColor3f(1.0f, 1.0f, 1.0f); // 色を戻す
 }
 
 void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText) {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     DrawQuad(mBackgroundTex, 0, 0, 1024, 768);
@@ -100,7 +114,31 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
     DrawQuad(mButtonTex, mDefendRect.x, mDefendRect.y, mDefendRect.w, mDefendRect.h);
     DrawQuad(mButtonTex, mSpecialRect.x, mSpecialRect.y, mSpecialRect.w, mSpecialRect.h);
 
-    // テキストは未対応。必要ならSDL_ttf→OpenGLテクスチャに変換で対応可能。
+    // 描画時：
+    SDL_Color white = { 255, 255, 255 };
+    int w, h;
+    GLuint attackTex = mTextRenderer.RenderText("Attack", white, w, h);
+    mTextRenderer.DrawTextTexture(
+        attackTex,
+        mAttackRect.x + (mAttackRect.w - w) / 2,
+        mAttackRect.y + (mAttackRect.h - h) / 2,
+        w, h);
+    GLuint defendTex = mTextRenderer.RenderText("Defend", white, w, h);
+    mTextRenderer.DrawTextTexture(
+        defendTex,
+        mDefendRect.x + (mDefendRect.w - w) / 2,
+        mDefendRect.y + (mDefendRect.h - h) / 2,
+        w, h);
+    GLuint specialTex = mTextRenderer.RenderText("Special", white, w, h);
+    mTextRenderer.DrawTextTexture(
+        specialTex,
+        mSpecialRect.x + (mSpecialRect.w - w) / 2,
+        mSpecialRect.y + (mSpecialRect.h - h) / 2,
+        w, h);
+
+    glDeleteTextures(1, &attackTex);
+    glDeleteTextures(1, &defendTex);
+    glDeleteTextures(1, &specialTex);
 
     glFlush();
 }

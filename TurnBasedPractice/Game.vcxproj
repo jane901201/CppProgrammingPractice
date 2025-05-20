@@ -15,6 +15,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PlayerUnit.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="UIScreen.cpp" />
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
@@ -22,6 +23,7 @@
     <ClInclude Include="DogUnit.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PlayerUnit.h" />
+    <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="UIScreen.h" />
     <ClInclude Include="Unit.h" />
   </ItemGroup>

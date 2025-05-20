@@ -84,8 +84,6 @@ bool Game::Initialize()
 
     glGetError();
 
-    // GLEWのようなライブラリが必要（ここでは省略可能）
-
     glViewport(0, 0, 1024, 768);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
