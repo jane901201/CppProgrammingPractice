@@ -41,10 +41,9 @@ private:
 
     SDL_Window* mWindow;
     SDL_GLContext mGLContext;
-    SDL_Renderer* mRenderer;
 
     Unit* mPlayer;
-    Unit* mDog;
+    Unit* mEnemy;
     UIScreen* mUI;
 
     bool mIsRunning;
@@ -53,5 +52,5 @@ private:
 
     Phase mPhase;
     Action mPlayerAction;
-    Action mDogAction;
+    Action mEnemyAction;
 };

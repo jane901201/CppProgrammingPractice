@@ -97,7 +97,7 @@ void UIScreen::DrawHPBar(int x, int y, int hp) {
     glColor3f(1.0f, 1.0f, 1.0f); // êFÇñﬂÇ∑
 }
 
-void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char* playerActionText, const char* dogActionText) {
+void UIScreen::Render(Unit* player, Unit* enemy, const char* phaseText, const char* playerActionText, const char* enemyActionText) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -107,7 +107,7 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
     DrawQuad(mEnemyTex, mEnemyRect.x, mEnemyRect.y, mEnemyRect.w, mEnemyRect.h);
     DrawQuad(mPlayerTex, mPlayerRect.x, mPlayerRect.y, mPlayerRect.w, mPlayerRect.h);
 
-    DrawHPBar(mEnemyRect.x, mEnemyRect.y - 20, dog->GetHP());
+    DrawHPBar(mEnemyRect.x, mEnemyRect.y - 20, enemy->GetHP());
     DrawHPBar(mPlayerRect.x, mPlayerRect.y - 20, player->GetHP());
 
     DrawQuad(mButtonTex, mAttackRect.x, mAttackRect.y, mAttackRect.w, mAttackRect.h);
@@ -154,9 +154,9 @@ void UIScreen::Render(Unit* player, Unit* dog, const char* phaseText, const char
     }
 
     // ìGÇÃçsìÆì‡óe
-    if (dogActionText && dogActionText[0] != '\0') {
+    if (enemyActionText && enemyActionText[0] != '\0') {
         int w, h;
-        GLuint tex = mTextRenderer.RenderText(dogActionText, white, w, h);
+        GLuint tex = mTextRenderer.RenderText(enemyActionText, white, w, h);
         mTextRenderer.DrawTextTexture(tex, 600, 80, w, h);
         glDeleteTextures(1, &tex);
     }

@@ -10,13 +10,13 @@
 #include <iostream>
 
 Game::Game()
-    : mWindow(nullptr), mRenderer(nullptr),
-    mPlayer(nullptr), mDog(nullptr), mUI(nullptr),
+    : mWindow(nullptr),
+    mPlayer(nullptr), mEnemy(nullptr), mUI(nullptr),
     mIsRunning(true)
 {
     mPhase = Phase::Select;
     mPlayerAction = Action::None;
-    mDogAction = Action::None;
+    mEnemyAction = Action::None;
 }
 
 Game::~Game()
@@ -41,20 +41,14 @@ bool Game::Initialize()
         return false;
     }
 
-    // Set OpenGL attributes
-    // Use the core OpenGL profile
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    // Specify version 3.3
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    // Request a color buffer with 8-bits per RGBA channel
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    // Enable double buffering
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    // Force OpenGL to use hardware acceleration
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
 
@@ -89,13 +83,13 @@ bool Game::Initialize()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, 1024, 768, 0, -1, 1); // SDL座標と同じにする
+    glOrtho(0, 1024, 768, 0, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
 
     mPlayer = new PlayerUnit();
-    mDog = new DogUnit();
+    mEnemy = new DogUnit();
     mUI = new UIScreen();
 
     mUI->LoadAssets();
@@ -126,13 +120,13 @@ void Game::RunLoop()
 
                 if (mPlayerAction != Action::None)
                 {
-                    mDogAction = (rand() % 2 == 0) ? Action::Attack : Action::Defend;
+                    mEnemyAction = (rand() % 2 == 0) ? Action::Attack : Action::Defend;
 
                     // ダメージ計算
-                    if (mPlayerAction == Action::Attack && mDogAction != Action::Defend)
-                        mDog->SetHP(mDog->GetHP() - 10);
+                    if (mPlayerAction == Action::Attack && mEnemyAction != Action::Defend)
+                        mEnemy->SetHP(mEnemy->GetHP() - 10);
 
-                    if (mDogAction == Action::Attack && mPlayerAction != Action::Defend)
+                    if (mEnemyAction == Action::Attack && mPlayerAction != Action::Defend)
                         mPlayer->SetHP(mPlayer->GetHP() - 10);
 
                     // 行動開始時間記録
@@ -157,11 +151,11 @@ void Game::UpdateGame()
         {
             float timeSec = SDL_GetTicks() / 1000.0f;
 
-            if (mPlayerAction == Action::Attack && mDogAction != Action::Defend) {
-                mDog->SetHP(mDog->GetHP() - 10);
+            if (mPlayerAction == Action::Attack && mEnemyAction != Action::Defend) {
+                mEnemy->SetHP(mEnemy->GetHP() - 10);
             }
 
-            if (mDogAction == Action::Attack && mPlayerAction != Action::Defend) {
+            if (mEnemyAction == Action::Attack && mPlayerAction != Action::Defend) {
                 mPlayer->SetHP(mPlayer->GetHP() - 10);
             }
 
@@ -172,7 +166,7 @@ void Game::UpdateGame()
         {
             mPhase = Phase::Select;
             mPlayerAction = Action::None;
-            mDogAction = Action::None;
+            mEnemyAction = Action::None;
             mActionProcessed = false; // 次の行動フェーズに備えてリセット
         }
         return;
@@ -185,18 +179,18 @@ void Game::GenerateOutput()
 
     const char* phaseStr = (mPhase == Phase::Select) ? "Select Phase" : "Action Phase";
     const char* playerActStr = "";
-    const char* dogActStr = "";
+    const char* enemyActStr = "";
 
     if (mPhase == Phase::Action)
     {
         if (mPlayerAction == Action::Attack) playerActStr = "Player Action:Attack";
         else if (mPlayerAction == Action::Defend) playerActStr = "Player Action:Defend";
 
-        if (mDogAction == Action::Attack) dogActStr = "Enemy Action:Attack";
-        else if (mDogAction == Action::Defend) dogActStr = "Enemy Action:Defend";
+        if (mEnemyAction == Action::Attack) enemyActStr = "Enemy Action:Attack";
+        else if (mEnemyAction == Action::Defend) enemyActStr = "Enemy Action:Defend";
     }
 
-    mUI->Render(mPlayer, mDog, phaseStr, playerActStr, dogActStr);
+    mUI->Render(mPlayer, mEnemy, phaseStr, playerActStr, enemyActStr);
 
     SDL_GL_SwapWindow(mWindow); // 描画の反映
 }
@@ -210,7 +204,7 @@ bool Game::IsInRect(int x, int y, const SDL_Rect& rect)
 void Game::Shutdown()
 {
     delete mPlayer;
-    delete mDog;
+    delete mEnemy;
     delete mUI;
 
     SDL_GL_DeleteContext(mGLContext);

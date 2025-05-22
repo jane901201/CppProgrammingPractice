@@ -28,13 +28,11 @@ bool Shader::Load(const std::string& vertexPath, const std::string& fragmentPath
         return false;
     }
 
-    // Create program and attach shaders
     mProgram = glCreateProgram();
     glAttachShader(mProgram, vertexShader);
     glAttachShader(mProgram, fragmentShader);
     glLinkProgram(mProgram);
 
-    // Check for linking errors
     GLint success;
     glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
     if (!success) {
@@ -44,7 +42,6 @@ bool Shader::Load(const std::string& vertexPath, const std::string& fragmentPath
         return false;
     }
 
-    // Shaders no longer needed after linking
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
@@ -63,7 +60,6 @@ GLuint Shader::CompileShader(const std::string& source, GLenum shaderType) {
     glShaderSource(shader, 1, &src, nullptr);
     glCompileShader(shader);
 
-    // Check for compile errors
     GLint success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
